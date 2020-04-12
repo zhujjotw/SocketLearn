@@ -36,11 +36,10 @@ int main(VOID)
 		{
 			printf("Enter info to server:\r\n");
 	
-			while( NULL == gets(szRcvInfo));
+			while( NULL == fgets(szRcvInfo));
 
 			printf("send to server\r\n");
 			
-
 			n = write(iCd, szRcvInfo, sizeof(szRcvInfo));
 			if ( n > 0 )
 			{

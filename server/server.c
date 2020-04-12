@@ -1,28 +1,7 @@
 #include "bm_pub_include.h"
-#include "sl_pub.h"
 #include "bm_pub_type.h"
 #include "bm_pub_error.h"
-
-
-int Serv_ProcRequest(char *acceptinfo, char * resultbuf)
-{
-	const char *str1 = "hello";
-	const char *str2 = "are you ok?"; 
-
-	
-	if ( NULL != strstr(acceptinfo, str1) )
-	{
-		strcpy(resultbuf, "hello, my name zjj");
-	}
-	else if ( NULL != strstr(acceptinfo, str2) )
-	{
-		strcpy(resultbuf, "i am ok");
-	}
-
-	return 1;
-
-}
-
+#include "sl_pub.h"
 
 
 int main(void)
