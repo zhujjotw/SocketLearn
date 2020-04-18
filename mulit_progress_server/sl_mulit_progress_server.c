@@ -12,7 +12,7 @@ static VOID LS_SignalHandler( INT signo)
 	INT status = 0;
 
 	 /* 循环处理子进程，此时waitpid和wait作用一样，但是WNOHANG表示不阻塞  */
-	while ( 0 < (pid = waitpid( -1, &status, WNOHANG)))
+	while ( 0 < (pid = waitpid( 0, &status, WNOHANG)))
 	{
 		printf("child_id = %d\n",pid);
 		printf("-------------------\n");
@@ -26,12 +26,12 @@ static VOID LS_SignalHandler( INT signo)
 		}
 	}
 	if( pid < 0 )
-l	{
+	{
 		printf("Errno = %s\n",strerror(errno));
-		while(1);
 	}	
 }
 
+/*  */
 int main(void)
 {
 	int lfd, cfd;
@@ -52,7 +52,7 @@ int main(void)
 	}     
 	
 	server_addr.sin_family = AF_INET; //IPv4，这里可选IPv6，以及其他方式
-	server_addr.sin_port = htons(SER_PO，RT); //port, 尽量选择3000以上的端口号来做处理
+	server_addr.sin_port = htons(SER_PORT); //port, 尽量选择3000以上的端口号来做处理
 	server_addr.sin_addr.s_addr = inet_addr(SER_IPADDR);
 
 	if ( 0 > bind(lfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) )  //主机必须要bind，需要固定IP和端口号，从机可以不用bind
@@ -74,8 +74,7 @@ int main(void)
 	while (1)
 	{
 		/* 注意两点结构体的类型需要适配，第三个参数是一个出入参 */
-		client_addr_len = sizeof(client_addr); 
-		cfd = accept(lfd, (struct sockaddr *)&client_addr, &client_addr_len);
+		cfd = accept(lfd,(struct sockaddr *) &client_addr, &client_addr_len);
 		if( cfd < 0 )
 		{
 			continue;
@@ -99,17 +98,20 @@ int main(void)
 		}
 	}
 
-	n = read(cfd, buff, sizeof(buff));
-	if ( 0 < n)
+	do
 	{
-		printf("accept %s\r\n", buff);
-		LS_Serv_ProcRequest(buff, resultbuf);
-		write(cfd, resultbuf, sizeof(resultbuf)); 
-	}
-	if ( 0 == n )
-	{
-		printf("client %s:%d quit.....\r\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-	}
+		n = read(cfd, buff, sizeof(buff));
+		if ( 0 < n)
+		{
+			printf("accept %s\r\n", buff);
+			LS_Serv_ProcRequest(buff, resultbuf);
+			write(cfd, resultbuf, sizeof(resultbuf)); 
+		}
+		if ( 0 == n )
+		{
+			printf("client %s:%d quit.....\r\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+		}
+	}while(0);
 	
 	close(cfd);
 	return BM_SUCCESS;
